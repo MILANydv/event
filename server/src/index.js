@@ -12,8 +12,6 @@ import userApis from "./apis/users";
 // Import Application Constants
 import { DB,PORT } from "./constants";
 
-// const DB =
-//   "mongodb+srv://milan361:iZEK0AAW2n6p4ilc@cluster0.uanmf.mongodb.net/event_management?retryWrites=true&w=majority";
 
 // Import passport middleware
 require("./middlewares/passport-middleware");
