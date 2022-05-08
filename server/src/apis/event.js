@@ -1,28 +1,28 @@
 import { Router } from "express";
 import { DOMAIN } from "../constants";
-import { Post, User } from "../models";
-import { userAuth } from "../middlewares/auth-guard";
 import SlugGenerator from "../functions/slug-generator";
-import validator from "../middlewares/validator-middleware";
-import { postValidations } from "../validators/post-validators";
+import { userAuth } from "../middlewares/auth-guard";
 import { uploadPostImage as uploader } from "../middlewares/uploader";
+import validator from "../middlewares/validator-middleware";
+import { Event } from "../models";
+import { postValidations } from "../validators/post-validators";
 
 const router = Router();
 
 /**
- * @description To Upload Post Image
- * @api /posts/api/post-image-upload
+ * @description To Upload event Image
+ * @api /events/api/event-image-upload
  * @access private
  * @type POST
  */
 router.post(
-  "/api/post-image-upload",
+  "/api/event-image-upload",
   userAuth,
   uploader.single("image"),
   async (req, res) => {
     try {
       let { file } = req;
-      let filename = DOMAIN + "post-images/" + file.filename;
+      let filename = DOMAIN + "event-images/" + file.filename;
       return res.status(200).json({
         filename,
         success: true,
@@ -31,56 +31,55 @@ router.post(
     } catch (err) {
       return res.status(400).json({
         success: false,
-        message: "Unable to create the post.",
+        message: "Unable to upload event image.",
       });
     }
   }
 );
 
 /**
- * @description To create a new post by the authenticated User
- * @api /posts/api/create-post
+ * @description To create a new event by the authenticated User
+ * @api /events/api/create-event
  * @access private
  * @type POST
  */
 router.post(
-  "/api/create-post",
+  "/api/create-event",
   userAuth,
   postValidations,
   validator,
   async (req, res) => {
     try {
-      // Create a new Post
+      // Create a new Event
       let { body } = req;
-      let post = new Post({
+      let event = new Event({
         author: req.user._id,
         ...body,
         slug: SlugGenerator(body.title),
       });
-      await post.save();
-      //   console.log("NEW_POST", post);
+      await event.save();
       return res.status(201).json({
-        post,
+        event,
         success: true,
-        message: "Your post is published.",
+        message: "Your event is published.",
       });
     } catch (err) {
       return res.status(400).json({
         success: false,
-        message: "Unable to create the post.",
+        message: "Unable to create the event.",
       });
     }
   }
 );
 
 /**
- * @description To update a post by the authenticated User
- * @api /posts/api/upadte-post
+ * @description To update a event by the authenticated User
+ * @api /events/api/upadte-event
  * @access private
  * @type PUT
  */
 router.put(
-  "/api/update-post/:id",
+  "/api/update-event/:id",
   userAuth,
   postValidations,
   validator,
@@ -88,21 +87,20 @@ router.put(
     try {
       let { id } = req.params;
       let { user, body } = req;
-      // Chcek if the post with the id is in the database or not?
-      let post = await Post.findById(id);
-      if (!post) {
+      let event = await Event.findById(id);
+      if (!event) {
         return res.status(404).json({
           success: false,
-          message: "Post not found.",
+          message: "Event not found.",
         });
       }
-      if (post.author.toString() !== user._id.toString()) {
+      if (event.author.toString() !== user._id.toString()) {
         return res.status(401).json({
           success: false,
-          message: "Post doesn't belong to you.",
+          message: "event doesn't belong to you.",
         });
       }
-      post = await Post.findOneAndUpdate(
+      event = await Event.findOneAndUpdate(
         { author: user._id, _id: id },
         {
           ...body,
@@ -111,62 +109,64 @@ router.put(
         { new: true }
       );
       return res.status(200).json({
-        post,
+        event,
         success: true,
-        message: "Post updated successfully.",
+        message: "event updated successfully.",
       });
     } catch (err) {
       return res.status(400).json({
         success: false,
-        message: "Unable to update the post.",
+        message: "Unable to update the event.",
       });
     }
   }
 );
 
+
+
 /**
- * @description To like a post by authenticated user
- * @api /posts/api/like-post
+ * @description To like a event by authenticated user
+ * @api /events/api/like-event
  * @access private
  * @type PUT
  */
-router.put("/api/like-post/:id", userAuth, async (req, res) => {
+router.put("/api/like-event/:id", userAuth, async (req, res) => {
   try {
     let { id } = req.params;
-    let post = await Post.findById(id);
-    if (!post) {
+    let event = await Event.findById(id);
+    if (!event) {
       return res.status(404).json({
         success: false,
-        message: "Post not found.",
+        message: "event not found.",
       });
     }
 
-    let user = post.likes.user.map((id) => id.toString());
+    let user = event.likes.user.map((id) => id.toString());
     if (user.includes(req.user._id.toString())) {
       return res.status(404).json({
         success: false,
-        message: "You have already liked this post.",
+        message: "You have already liked this event.",
       });
     }
 
-    post = await Post.findOneAndUpdate(
+    event = await Event.findOneAndUpdate(
       { _id: id },
       {
         likes: {
-          count: post.likes.count + 1,
-          user: [...post.likes.user, req.user._id],
+          count: event.likes.count + 1,
+          user: [...event.likes.user, req.user._id],
         },
       },
       { new: true }
     );
     return res.status(200).json({
       success: true,
-      message: "You liked this post.",
+      message: "You liked this event.",
     });
   } catch (err) {
     return res.status(400).json({
       success: false,
-      message: "Unable to like the post. Please try again later.",
+      message: "Unable to like the event. Please try again later.",
     });
   }
 });

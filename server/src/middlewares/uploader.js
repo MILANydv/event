@@ -10,12 +10,12 @@ const destination = (req, file, next) => {
   next(null, `${__dirname}/../uploads`);
 };
 
-const postImageDestination = (req, file, next) => {
-  next(null, `${__dirname}/../uploads/post-images`);
+const eventImageDestination = (req, file, next) => {
+  next(null, `${__dirname}/../uploads/event-images`);
 };
 
-export const uploadPostImage = multer({
-  storage: multer.diskStorage({ destination: postImageDestination, filename }),
+export const uploadEventImage = multer({
+  storage: multer.diskStorage({ destination: eventImageDestination, filename }),
 });
 
 const upload = multer({

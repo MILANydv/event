@@ -1,9 +1,9 @@
 import { Schema, model } from "mongoose";
 import Paginator from "mongoose-paginate-v2";
 
-const PostSchema = new Schema(
+const EventSchema = new Schema(
   {
-    postImage: {
+    eventImage: {
       type: String,
       required: true,
     },
@@ -48,7 +48,7 @@ const PostSchema = new Schema(
   { timestamps: true }
 );
 
-PostSchema.plugin(Paginator);
+EventSchema.plugin(Paginator);
 
-const Post = model("posts", PostSchema);
-export default Post;
+const Event = model("events", EventSchema);
+export default Event;

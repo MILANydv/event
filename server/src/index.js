@@ -5,7 +5,7 @@ import express from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import { join } from "path";
-import postApis from "./apis/posts";
+import eventApis from "./apis/event";
 import profileApis from "./apis/profiles";
 // Router imports
 import userApis from "./apis/users";
@@ -27,7 +27,7 @@ app.use(express.static(join(__dirname, "./uploads")));
 
 // Inject Sub router and apis
 app.use("/users", userApis);
-app.use("/posts", postApis);
+app.use("/events", eventApis);
 app.use("/profiles", profileApis);
 
 const main = async () => {
