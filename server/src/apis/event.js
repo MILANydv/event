@@ -2,10 +2,10 @@ import { Router } from "express";
 import { DOMAIN } from "../constants";
 import SlugGenerator from "../functions/slug-generator";
 import { userAuth } from "../middlewares/auth-guard";
-import { uploadPostImage as uploader } from "../middlewares/uploader";
+import { uploadEventImage as uploader } from "../middlewares/uploader";
 import validator from "../middlewares/validator-middleware";
 import { Event } from "../models";
-import { postValidations } from "../validators/post-validators";
+import { eventValidations } from "../validators/event-validators";
 
 const router = Router();
 
@@ -46,7 +46,7 @@ router.post(
 router.post(
   "/api/create-event",
   userAuth,
-  postValidations,
+  eventValidations,
   validator,
   async (req, res) => {
     try {
@@ -64,6 +64,7 @@ router.post(
         message: "Your event is published.",
       });
     } catch (err) {
+      console.log(err)
       return res.status(400).json({
         success: false,
         message: "Unable to create the event.",
@@ -81,7 +82,7 @@ router.post(
 router.put(
   "/api/update-event/:id",
   userAuth,
-  postValidations,
+  eventValidations,
   validator,
   async (req, res) => {
     try {
@@ -117,6 +118,30 @@ router.put(
       return res.status(400).json({
         success: false,
         message: "Unable to update the event.",
+      });
+    }
+  }
+);
+
+/**
+ * @description To Get all events by All the users
+ * @api /events/api/get-event
+ * @access public
+ * @type GET
+ */
+
+  router.get("/api/get-event", async (req, res) => {
+    try {
+      let events = await Event.find();
+      return res.status(200).json({
+        events,
+        success: true,
+        message: "Events fetched successfully.",
+      });
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: "Unable to fetch events.",
       });
     }
   }

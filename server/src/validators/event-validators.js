@@ -5,4 +5,4 @@ const content = check("content", "Content for the post is required.")
   .not()
   .isEmpty();
 
-export const postValidations = [title, content];
+export const eventValidations = [title, content];
