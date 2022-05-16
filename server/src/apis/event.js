@@ -196,4 +196,58 @@ router.put("/api/like-event/:id", userAuth, async (req, res) => {
   }
 });
 
+
+/**
+ * @description To comment a event by authenticated user
+ * @api /events/api/comment-event
+ * @access private
+ * @type PUT
+ */
+
+router.put('/api/comment-event/:id', userAuth, async (req, res) => {
+  try {
+    let { id } = req.params;
+    let { body } = req;
+    let event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "event not found.",
+      });
+    }
+
+    let user = event.likes.user.map((id) => id.toString());
+    if (user.includes(req.user._id.toString())) {
+      return res.status(404).json({
+        success: false,
+        message: "You have already commented this event.",
+      });
+    }
+
+    event = await Event.findOneAndUpdate(
+      { _id: id },
+      {
+        comments: {
+          count: event.comments.count + 1,
+          user: [req.user._id],
+          comment: [body.comment],
+        },
+      },
+      { new: true }
+    );
+    return res.status(200).json({
+      success: true,
+      message: "You commented this event.",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      success: false,
+      message: "Unable to comment the event. Please try again later.",
+    });
+  }
+}
+);
+
+
 export default router;
