@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
 import Paginator from "mongoose-paginate-v2";
 
 const EventSchema = new Schema(
@@ -16,6 +16,10 @@ const EventSchema = new Schema(
       required: true,
     },
     content: {
+      type: String,
+      required: true,
+    },
+    category: {
       type: String,
       required: true,
     },
@@ -40,7 +44,7 @@ const EventSchema = new Schema(
         },
       },
     ],
-    author: {
+    organizer: {
       ref: "users",
       type: Schema.Types.ObjectId,
     },

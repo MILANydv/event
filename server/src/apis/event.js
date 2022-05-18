@@ -59,7 +59,7 @@ router.post(
       // Create a new Event
       let { body } = req;
       let event = new Event({
-        author: req.user._id,
+        organizer: req.user._id,
         ...body,
         slug: SlugGenerator(body.title),
       });
