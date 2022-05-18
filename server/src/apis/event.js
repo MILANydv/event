@@ -21,6 +21,12 @@ router.post(
   uploader.single("image"),
   async (req, res) => {
     try {
+      if (req.file == undefined) {
+        return res.status(400).json({
+          status: "error",
+          message: "No file selected",
+        });
+      }
       let { file } = req;
       let filename = DOMAIN + "event-images/" + file.filename;
       return res.status(200).json({

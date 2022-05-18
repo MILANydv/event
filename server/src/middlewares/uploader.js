@@ -6,6 +6,13 @@ const filename = (req, file, next) => {
   next(null, `img-${Date.now()}${ext}`);
 };
 
+const filter = (req, file, next) => {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    next(null, true);
+  } else {
+    next(null, false);
+  }
+};
 const destination = (req, file, next) => {
   next(null, `${__dirname}/../uploads`);
 };
@@ -16,10 +23,12 @@ const eventImageDestination = (req, file, next) => {
 
 export const uploadEventImage = multer({
   storage: multer.diskStorage({ destination: eventImageDestination, filename }),
+  fileFilter: filter,
 });
 
 const upload = multer({
   storage: multer.diskStorage({ destination, filename }),
+  fileFilter: filter,
 });
 
 export default upload;
