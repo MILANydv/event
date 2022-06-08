@@ -10,7 +10,7 @@ import profileApis from "./apis/profiles";
 // Router imports
 import userApis from "./apis/users";
 // Import Application Constants
-import { DB,PORT } from "./constants";
+import { DB, PORT } from "./constants";
 
 
 // Import passport middleware

@@ -1,16 +1,14 @@
-import {
-  ResetPassword,
-  RegisterValidations,
-  AuthenticateValidations,
-} from "../validators";
-import { join } from "path";
-import { User } from "../models";
-import { Router } from "express";
 import { randomBytes } from "crypto";
+import { Router } from "express";
+import { join } from "path";
 import { DOMAIN } from "../constants";
 import sendMail from "../functions/email-sender";
 import { userAuth } from "../middlewares/auth-guard";
 import Validator from "../middlewares/validator-middleware";
+import { User } from "../models";
+import {
+  AuthenticateValidations, RegisterValidations, ResetPassword
+} from "../validators";
 
 const router = Router();
 

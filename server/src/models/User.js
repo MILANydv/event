@@ -1,9 +1,9 @@
-import { Schema, model } from "mongoose";
 import { compare, hash } from "bcryptjs";
-import { SECRET } from "../constants";
 import { randomBytes } from "crypto";
 import { sign } from "jsonwebtoken";
 import { pick } from "lodash";
+import { model, Schema } from "mongoose";
+import { SECRET } from "../constants";
 
 const UserSchema = new Schema(
   {

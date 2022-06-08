@@ -153,6 +153,53 @@ router.put(
   }
 );
 
+/**
+ * @description To get a event by category by user
+ * @api /events/api/get-event-category
+ * @access public
+ * @type GET
+ */
+router.get('/api/get-event/:category', async (req, res) => {
+  try {
+    let { category } = req.params;
+    let events = await Event.find({ category });
+    return res.status(200).json({
+      events,
+      success: true,
+      message: "Events fetched successfully.",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch events.",
+    });
+  }
+});
+
+
+/**
+ * @description To serach a event by title by user
+ * @api /events/api/search-event/title
+ * @access public
+ * @type GET
+ */
+router.get('/api/search-event/', async (req, res) => {
+  try {
+    let { title } = req.body;
+    let events = await Event.find({ title: { $regex: title, $options: 'i' } });
+    return res.status(200).json({
+      events,
+      success: true,
+      message: "Events fetched successfully.",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch events.",
+    });
+  }
+});
+
 
 
 /**
