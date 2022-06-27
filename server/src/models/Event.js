@@ -6,10 +6,11 @@ const EventSchema = new Schema(
     eventImage: {
       type: String,
       required: true,
+      default:
+        "https://hire4event.com/blogs/wp-content/uploads/2019/05/Event-Management-Proposal-Hire4event.jpg",
     },
     slug: {
       type: String,
-      required: true,
     },
     title: {
       type: String,
@@ -20,8 +21,25 @@ const EventSchema = new Schema(
       required: true,
     },
     category: {
+      type: Schema.Types.ObjectId,
+      ref: "categories", // this will take Category id not all object
+      required: true,
+    },
+    ticketPrice: {
+      type: Number,
+      required: true,
+    },
+    eventDate: {
       type: String,
       required: true,
+    },
+    location: {
+      type: String,
+      required: true,
+    },
+    specialApperence: {
+      type: String,
+      required: false,
     },
     likes: {
       count: { type: Number, default: 0 },
