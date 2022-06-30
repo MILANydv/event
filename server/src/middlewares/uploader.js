@@ -25,8 +25,32 @@ const eventImageDestination = (req, file, next) => {
   next(null, `${__dirname}/../uploads/event-images`);
 };
 
+const eventStoryImageDestination = (req, file, next) => {
+  next(null, `${__dirname}/../uploads/event-story-images`);
+};
+
+const eventStoryVideoDestination = (req, file, next) => {
+  next(null, `${__dirname}/../uploads/event-story-videos`);
+};
+
 export const uploadEventImage = multer({
   storage: multer.diskStorage({ destination: eventImageDestination, filename }),
+  fileFilter: filter,
+});
+
+export const uploadEventStoryImage = multer({
+  storage: multer.diskStorage({
+    destination: eventStoryImageDestination,
+    filename,
+  }),
+  fileFilter: filter,
+});
+
+export const uploadEventStoryVideo = multer({
+  storage: multer.diskStorage({
+    destination: eventStoryVideoDestination,
+    filename,
+  }),
   fileFilter: filter,
 });
 
