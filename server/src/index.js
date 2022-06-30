@@ -7,6 +7,8 @@ import passport from "passport";
 import { join } from "path";
 import eventApis from "./apis/event";
 import profileApis from "./apis/profiles";
+import storyApis from "./apis/stories";
+import categoryApis from './apis/category'
 // Router imports
 import userApis from "./apis/users";
 // Import Application Constants
@@ -29,6 +31,9 @@ app.use(express.static(join(__dirname, "./uploads")));
 app.use("/users", userApis);
 app.use("/events", eventApis);
 app.use("/profiles", profileApis);
+app.use("/stories", storyApis);
+app.use("/categories", categoryApis);
+
 
 const main = async () => {
   try {

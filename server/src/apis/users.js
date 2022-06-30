@@ -120,13 +120,13 @@ router.post(
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: "Username not found.",
+          message: "Invalid Credentials.",
         });
       }
       if (!(await user.comparePassword(password))) {
         return res.status(401).json({
           success: false,
-          message: "Incorrect password.",
+          message: "Invalid Credentials.",
         });
       }
       let token = await user.generateJWT();
