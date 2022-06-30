@@ -1,105 +1,59 @@
-const { Category } = require("../models/category");
+const { Category } = require("../models");
 const express = require("express");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const categoryList = await Category.find({});
-  if (!categoryList) {
-    res.status(500).json({
-      success: false,
-    });
-  } else {
-    res.status(201).json({
+/**
+ * @description To Get event category
+ * @api /categories/api/categories
+ * @access private
+ * @type GET
+ */
+
+router.get("/api/categories", async (req, res) => {
+  try {
+    let categories = await Category.find();
+    return res.status(200).json({
+      categories,
       success: true,
-      data: categoryList,
+      message: "Categories fetched successfully.",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch categories.",
     });
   }
 });
 
-router.get('/:id',async (req,res)=>{
-  const category = await Category.findById(req.params.id);
-  if(!category){
-    res.status(404).json({
-      success: false,
-    });
-  } else{
-    res.status(201).json({
-      success: true,
-      data: category,
-    });
-  }
-});
+/**
+ * @description To Add event category
+ * @api /categories/api/add-category
+ * @access private
+ * @type POST
+ */
 
-router.post("/", async (req, res) => {
-  await Category.create(req.body)
-    .then((category) => {
-      if (!category) {
-        res.status(400).json({
-          success: false,
-          message: "Category cannot be created",
-        });
-      } else {
-        res.status(201).json({
-          success: true,
-          data: Category,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({
-        success: false,
-        message: err,
+router.post(
+  "/api/add-category",
+
+  async (req, res) => {
+    try {
+      // Create a new category
+      let { body } = req;
+      let category = new Category({
+        ...body,
       });
-    });
-});
-
-router.delete("/:id", async (req, res) => {
-  await Category.findByIdAndRemove(req.params.id)
-    .then((category) => {
-      if (!category) {
-        res.status(200).json({
-          success: true,
-          message: "Category deleted",
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: "Category cannot be deleted",
-        });
-      }
-    })
-    //This is the server issue, not the client.
-    .catch((err) => {
-      res.status(500).json({
+      await category.save();
+      return res.status(201).json({
         success: true,
-        message: err,
+        message: "Your category is published.",
       });
-    });
-});
-
-router.put('/:id', async (req,res)=>{
-  // To get the new updated data we set new to true
-    await Category.findByIdAndUpdate(req.params.id,req.body,{new:true}).then(() =>{
-        if (!category) {
-          res.status(200).json({
-            success: true,
-            message: "Category deleted",
-          });
-        } else {
-          res.status(400).json({
-            success: false,
-            message: "Category cannot be deleted",
-          });
-        }
-      })
-      //This is the server issue, not the client.
-      .catch((err) => {
-        res.status(500).json({
-          success: true,
-          message: err,
-        });
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: "Unable to create the category.",
       });
-})
+    }
+  }
+);
 
-
-module.exports = router;
+export default router;

@@ -5,7 +5,6 @@ const EventSchema = new Schema(
   {
     eventImage: {
       type: String,
-      required: true,
       default:
         "https://hire4event.com/blogs/wp-content/uploads/2019/05/Event-Management-Proposal-Hire4event.jpg",
     },
@@ -39,7 +38,6 @@ const EventSchema = new Schema(
     },
     specialApperence: {
       type: String,
-      required: false,
     },
     likes: {
       count: { type: Number, default: 0 },
@@ -54,7 +52,6 @@ const EventSchema = new Schema(
       {
         text: {
           type: String,
-          required: true,
         },
         user: {
           ref: "users",

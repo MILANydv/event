@@ -34,6 +34,9 @@ router.post(
         success: true,
         message: "Image Uploaded Successfully.",
       });
+
+
+
     } catch (err) {
       return res.status(400).json({
         success: false,
@@ -49,35 +52,51 @@ router.post(
  * @access private
  * @type POST
  */
+
 router.post(
   "/api/create-event",
-  userAuth,
-  eventValidations,
   validator,
+  uploader.single("eventImage"),
   async (req, res) => {
     try {
-      // Create a new Event
+      if (req.file == undefined || req.file == null) {
+        return res.status(400).json({
+          status: "error",
+          message: "No file selected",
+        });
+      }
       let { body } = req;
+
+      let { file } = req;
+      let filename = DOMAIN + "event-images/" + file.filename;
+      let slug = SlugGenerator(body.title);
       let event = new Event({
-        organizer: req.user._id,
-        ...body,
-        slug: SlugGenerator(body.title),
+        title: body.title,
+        eventImage: filename,
+        slug: slug,
+        content: body.content,
+        eventDate: body.eventDate,
+        location: body.location,
+        ticketPrice: body.ticketPrice,
+        category: body.category,
+        specialApperence: body.specialApperence,
       });
-      await event.save();
-      return res.status(201).json({
-        event,
-        success: true,
-        message: "Your event is published.",
+      let savedEvent = await event.save();
+      return res.status(200).json({
+        status: "success",
+        message: "Event created successfully.",
+        event: savedEvent,
       });
     } catch (err) {
-      console.log(err)
       return res.status(400).json({
-        success: false,
-        message: "Unable to create the event.",
+        status: "error",
+        message: "Unable to create event.",
       });
     }
   }
 );
+
+
 
 /**
  * @description To update a event by the authenticated User
