@@ -34,9 +34,6 @@ router.post(
         success: true,
         message: "Image Uploaded Successfully.",
       });
-
-
-
     } catch (err) {
       return res.status(400).json({
         success: false,
@@ -96,8 +93,6 @@ router.post(
   }
 );
 
-
-
 /**
  * @description To update a event by the authenticated User
  * @api /events/api/upadte-event
@@ -155,22 +150,21 @@ router.put(
  * @type GET
  */
 
-  router.get("/api/get-event", async (req, res) => {
-    try {
-      let events = await Event.find();
-      return res.status(200).json({
-        events,
-        success: true,
-        message: "Events fetched successfully.",
-      });
-    } catch (err) {
-      return res.status(400).json({
-        success: false,
-        message: "Unable to fetch events.",
-      });
-    }
+router.get("/api/get-event", async (req, res) => {
+  try {
+    let events = await Event.find();
+    return res.status(200).json({
+      events,
+      success: true,
+      message: "Events fetched successfully.",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch events.",
+    });
   }
-);
+});
 
 /**
  * @description To get a event by category by user
@@ -178,7 +172,7 @@ router.put(
  * @access public
  * @type GET
  */
-router.get('/api/get-event/:category', async (req, res) => {
+router.get("/api/get-event/:category", async (req, res) => {
   try {
     let { category } = req.params;
     let events = await Event.find({ category });
@@ -195,17 +189,16 @@ router.get('/api/get-event/:category', async (req, res) => {
   }
 });
 
-
 /**
  * @description To serach a event by title by user
  * @api /events/api/search-event/title
  * @access public
  * @type GET
  */
-router.get('/api/search-event/', async (req, res) => {
+router.get("/api/search-event/", async (req, res) => {
   try {
     let { title } = req.body;
-    let events = await Event.find({ title: { $regex: title, $options: 'i' } });
+    let events = await Event.find({ title: { $regex: title, $options: "i" } });
     return res.status(200).json({
       events,
       success: true,
@@ -218,8 +211,6 @@ router.get('/api/search-event/', async (req, res) => {
     });
   }
 });
-
-
 
 /**
  * @description To like a event by authenticated user
@@ -268,7 +259,6 @@ router.put("/api/like-event/:id", userAuth, async (req, res) => {
   }
 });
 
-
 /**
  * @description To comment a event by authenticated user
  * @api /events/api/comment-event
@@ -276,7 +266,7 @@ router.put("/api/like-event/:id", userAuth, async (req, res) => {
  * @type PUT
  */
 
-router.put('/api/comment-event/:id', userAuth, async (req, res) => {
+router.put("/api/comment-event/:id", userAuth, async (req, res) => {
   try {
     let { id } = req.params;
     let { body } = req;
@@ -318,8 +308,6 @@ router.put('/api/comment-event/:id', userAuth, async (req, res) => {
       message: "Unable to comment the event. Please try again later.",
     });
   }
-}
-);
-
+});
 
 export default router;
