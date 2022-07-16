@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { DOMAIN } from "../constants";
-import { Profile, User } from "../models";
-import uploader from "../middlewares/uploader";
 import { userAuth } from "../middlewares/auth-guard";
+import uploader from "../middlewares/uploader";
+import { Profile, User } from "../models";
 
 const router = Router();
 
@@ -12,28 +12,49 @@ const router = Router();
  * @api /profiles/api/create-profile
  * @access Private
  */
+
 router.post(
   "/api/create-profile",
   userAuth,
   uploader.single("avatar"),
   async (req, res) => {
     try {
-      let { body, file, user } = req;
-      let path = DOMAIN + file.path.split("uploads/")[1];
-      let profile = new Profile({
-        social: body,
-        account: user._id,
-        avatar: path,
+      // check if user has a profile
+      const userprofile = await Profile.findOne({
+        user: req.user.id,
       });
-      await profile.save();
-      return res.status(201).json({
+      if (userprofile) {
+        return res.status(400).json({
+          status: "error",
+          message: "You already have a profile",
+        });
+      }
+      // create new profile
+      if (req.file == undefined || req.file == null) {
+        return res.status(400).json({
+          status: "error",
+          message: "No file selected",
+        });
+      }
+      let { file } = req;
+      let { body } = req;
+      let filename = DOMAIN + "uploads/" + file.filename;
+      let profile = await Profile.create({
+        account: req.user._id,
+        avatar: filename,
+        facebook: body.facebook,
+        linkedin: body.linkedin,
+        github: body.github,
+      });
+      return res.status(200).json({
+        profile,
         success: true,
-        messgae: "Profile created successfully.",
+        message: "Profile Created Successfully.",
       });
     } catch (err) {
       return res.status(400).json({
         success: false,
-        messgae: "Unable to create your profile.",
+        message: "Unable to create profile.",
       });
     }
   }
@@ -47,11 +68,10 @@ router.post(
  */
 router.get("/api/my-profile", userAuth, async (req, res) => {
   try {
-    let profile = await Profile.findOne({ account: req.user._id }).populate(
-      "account",
-      "name email username"
+    let profiles = await Profile.find({ account: req.user._id }).populate(
+      "account"
     );
-    if (!profile) {
+    if (!profiles) {
       return res.status(404).json({
         success: false,
         message: "Your profile is not available.",
@@ -59,7 +79,7 @@ router.get("/api/my-profile", userAuth, async (req, res) => {
     }
     return res.status(200).json({
       success: true,
-      profile,
+      profiles,
     });
   } catch (err) {
     return res.status(400).json({
@@ -81,22 +101,26 @@ router.put(
   uploader.single("avatar"),
   async (req, res) => {
     try {
-      let { body, file, user } = req;
-      let path = DOMAIN + file.path.split("uploads/")[1];
+      let { body } = req;
+      let { file } = req;
+      let filename = DOMAIN + "uploads/" + file.filename;
       let profile = await Profile.findOneAndUpdate(
-        { account: user._id },
-        { social: body, avatar: path },
+        { account: req.user._id },
+        {
+          ...body,
+          avatar: filename,
+        },
         { new: true }
       );
       return res.status(200).json({
-        success: true,
-        message: "Your profile is now updated",
         profile,
+        success: true,
+        message: "Profile updated successfully.",
       });
     } catch (err) {
       return res.status(400).json({
         success: false,
-        message: "Unable to get the profile.",
+        message: "Unable to update the profile.",
       });
     }
   }

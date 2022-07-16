@@ -5,10 +5,10 @@ import express from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import { join } from "path";
+import categoryApis from './apis/category';
 import eventApis from "./apis/event";
 import profileApis from "./apis/profiles";
 import storyApis from "./apis/stories";
-import categoryApis from './apis/category'
 // Router imports
 import userApis from "./apis/users";
 // Import Application Constants
