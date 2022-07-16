@@ -53,6 +53,7 @@ router.post(
 router.post(
   "/api/create-event",
   validator,
+  userAuth,
   uploader.single("eventImage"),
   async (req, res) => {
     try {
