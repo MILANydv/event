@@ -52,14 +52,16 @@ router.post(
 
 router.post(
   "/api/create-event",
-  validator,
   userAuth,
   uploader.single("eventImage"),
+  validator,
+  eventValidations,
+
   async (req, res) => {
     try {
       if (req.file == undefined || req.file == null) {
         return res.status(400).json({
-          status: "error",
+          success: false,
           message: "No file selected",
         });
       }
@@ -78,21 +80,96 @@ router.post(
         ticketPrice: body.ticketPrice,
         category: body.category,
         specialApperence: body.specialApperence,
+        organizer: req.user._id,
       });
       let savedEvent = await event.save();
       return res.status(200).json({
-        status: "success",
+        success: true,
+
         message: "Event created successfully.",
         event: savedEvent,
       });
     } catch (err) {
       return res.status(400).json({
-        status: "error",
+        success: false,
         message: "Unable to create event.",
       });
     }
   }
 );
+
+/**
+ * @description To update a event by the authenticated User to purchase a ticket
+ * @api /events/api/attend-event
+ * @access private
+ * @type PUT
+ */
+router.put(
+  "/api/attend-event",
+  userAuth,
+  uploader.single("eventImage"),
+
+  async (req, res) => {
+    try {
+      let event = await Event.findById(req.body.eventId);
+      if (event == null) {
+        return res.status(400).json({
+          success: false,
+          message: "Event not found.",
+        });
+      }
+      event.attendees.push(req.user._id);
+      let savedEvent = await event.save();
+      return res.status(200).json({
+        
+        success: true,
+
+        message: "Event attended successfully.",
+        event: savedEvent,
+      });
+    }
+    catch (err) {
+      return res.status(400).json({
+        
+        success: false,
+
+        message: "Unable to attend event.",
+      });
+    }
+  }
+);
+
+/**
+ * @description To get attendee event by the authenticated User
+ * @api /events/api/get-attendee-event
+ * @access private
+ * @type GET
+ */
+
+router.get(
+  "/api/get-attendee-event",
+  userAuth,
+  async (req, res) => {
+    try {
+      let events = await Event.find({ attendees: req.user._id });
+      return res.status(200).json({
+
+        success: true,
+
+        message: "Attendee events retrieved successfully.",
+        events,
+      });
+    }
+    catch (err) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Unable to get attendee events.",
+      });
+    }
+  }
+);
+
 
 /**
  * @description To update a event by the authenticated User
@@ -103,12 +180,17 @@ router.post(
 router.put(
   "/api/update-event/:id",
   userAuth,
-  eventValidations,
+  uploader.single("eventImage"),
   validator,
+  eventValidations,
   async (req, res) => {
     try {
       let { id } = req.params;
       let { user, body } = req;
+       let { file } = req;
+
+      let filename = DOMAIN + "event-images/" + file.filename;
+
       let event = await Event.findById(id);
       if (!event) {
         return res.status(404).json({
@@ -116,17 +198,18 @@ router.put(
           message: "Event not found.",
         });
       }
-      if (event.author.toString() !== user._id.toString()) {
+      if (event.organizer.toString() !== user._id.toString()) {
         return res.status(401).json({
           success: false,
           message: "event doesn't belong to you.",
         });
       }
-      event = await Event.findOneAndUpdate(
-        { author: user._id, _id: id },
+      event = await Event.findByIdAndUpdate(
+        { organizer: user._id, _id: id },
         {
           ...body,
           slug: SlugGenerator(body.title),
+          eventImage: filename,
         },
         { new: true }
       );
@@ -135,7 +218,28 @@ router.put(
         success: true,
         message: "event updated successfully.",
       });
+      //  let filename = DOMAIN + "event-images/" + file.filename;
+      //  let slug = SlugGenerator(body.title);
+      //   event = await findByIdAndUpdate({
+      //    title: body.title,
+      //    eventImage: filename,
+      //    slug: slug,
+      //    content: body.content,
+      //    eventDate: body.eventDate,
+      //    location: body.location,
+      //    ticketPrice: body.ticketPrice,
+      //    category: body.category,
+      //    specialApperence: body.specialApperence,
+      //    organizer: req.user._id,
+      //  });
+      //  let savedEvent = await event.save();
+      //  return res.status(200).json({
+      //    status: "success",
+      //    message: "Event created successfully.",
+      //    event: savedEvent,
+      //  });
     } catch (err) {
+      console.log(err);
       return res.status(400).json({
         success: false,
         message: "Unable to update the event.",
@@ -168,7 +272,30 @@ router.get("/api/get-event", async (req, res) => {
 });
 
 /**
- * @description To get a event by category by user
+ * @description To get user's events
+ * @api /events/api/get-userevent
+ * @access private
+ * @type GET
+ */
+
+router.get("/api/get-userevent", userAuth, async (req, res) => {
+  try {
+    let events = await Event.find({ organizer: req.user._id });
+    return res.status(200).json({
+      events,
+      success: true,
+      message: "Events fetched successfully.",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch events.",
+    });
+  }
+});
+
+/**
+ * @description To get a event by category
  * @api /events/api/get-event-category
  * @access public
  * @type GET

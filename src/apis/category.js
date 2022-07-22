@@ -23,7 +23,7 @@ router.get("/api/categories", async (req, res) => {
       message: "Unable to fetch categories.",
     });
   }
-});
+}); 
 
 /**
  * @description To Add event category
