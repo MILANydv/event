@@ -63,6 +63,12 @@ const EventSchema = new Schema(
       ref: "users",
       type: Schema.Types.ObjectId,
     },
+    attendees: [
+      {
+        ref: "users",
+        type: Schema.Types.ObjectId,
+      },
+    ],
   },
   { timestamps: true }
 );

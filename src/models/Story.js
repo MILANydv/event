@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 
 const storiesSchema = new Schema({
   account: {
@@ -9,13 +9,19 @@ const storiesSchema = new Schema({
     type: String,
     required: false,
   },
-
+  title: {
+    type: String,
+    required: true,
+  },
   image: {
     type: String,
-    required: flase,
+    required: true,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
+const Story = model("stories", storiesSchema);
+export default Story;
