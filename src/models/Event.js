@@ -36,9 +36,10 @@ const EventSchema = new Schema(
       type: String,
       required: true,
     },
-    specialApperence: {
+    specialAppereance: {
       type: String,
     },
+
     likes: {
       count: { type: Number, default: 0 },
       user: [

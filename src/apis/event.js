@@ -79,7 +79,7 @@ router.post(
         location: body.location,
         ticketPrice: body.ticketPrice,
         category: body.category,
-        specialApperence: body.specialApperence,
+        specialAppereance: body.specialAppereance,
         organizer: req.user._id,
       });
       let savedEvent = await event.save();
@@ -111,7 +111,7 @@ router.put(
 
   async (req, res) => {
     try {
-      let event = await Event.findById(req.body.eventId);
+      let event = await Event.findById(req.body._id);
       if (event == null) {
         return res.status(400).json({
           success: false,
@@ -172,6 +172,48 @@ router.get(
 
 
 /**
+ * @description To get single event by event id
+ * @api /events/api/get-single-event
+ * @access public
+ * @type GET
+ */
+
+router.get(
+  "/api/get-single-event/:id",
+  async (req, res) => {
+    try {
+      let event = await Event.findById(req.params.id);
+      if (event == null) {
+        return res.status(400).json({
+          success: false,
+          message: "Event not found.",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Event retrieved successfully.",
+        event,
+      });
+    }
+    catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: "Unable to get event.",
+      });
+    }
+  }
+);
+
+
+// router.get("api/get-single-event/:id", async (req, res) => {
+//   const event_details = await Event.findOne({ _id: req.params.id });
+
+//   res.json({ details: event_details });
+// });
+
+
+
+/**
  * @description To update a event by the authenticated User
  * @api /events/api/upadte-event
  * @access private
@@ -187,9 +229,9 @@ router.put(
     try {
       let { id } = req.params;
       let { user, body } = req;
-       let { file } = req;
+      //  let { file } = req;
 
-      let filename = DOMAIN + "event-images/" + file.filename;
+      // let filename = DOMAIN + "event-images/" + file.filename;
 
       let event = await Event.findById(id);
       if (!event) {
@@ -209,7 +251,7 @@ router.put(
         {
           ...body,
           slug: SlugGenerator(body.title),
-          eventImage: filename,
+          // eventImage: filename,
         },
         { new: true }
       );
@@ -218,26 +260,7 @@ router.put(
         success: true,
         message: "event updated successfully.",
       });
-      //  let filename = DOMAIN + "event-images/" + file.filename;
-      //  let slug = SlugGenerator(body.title);
-      //   event = await findByIdAndUpdate({
-      //    title: body.title,
-      //    eventImage: filename,
-      //    slug: slug,
-      //    content: body.content,
-      //    eventDate: body.eventDate,
-      //    location: body.location,
-      //    ticketPrice: body.ticketPrice,
-      //    category: body.category,
-      //    specialApperence: body.specialApperence,
-      //    organizer: req.user._id,
-      //  });
-      //  let savedEvent = await event.save();
-      //  return res.status(200).json({
-      //    status: "success",
-      //    message: "Event created successfully.",
-      //    event: savedEvent,
-      //  });
+     
     } catch (err) {
       console.log(err);
       return res.status(400).json({
@@ -249,6 +272,85 @@ router.put(
 );
 
 /**
+ * @description To delete All event By organizer
+ * @api /events/api/delete-all-event
+ * @access Private
+ * @type DELETE
+ */
+
+  router.delete(
+    "/api/delete-all-event",
+    userAuth,
+    async (req, res) => {
+      try {
+        let { user } = req;
+        let events = await Event.find({ organizer: user._id });
+        if (events.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "No event found.",
+          });
+        }
+        await Event.deleteMany({ organizer: user._id });
+        return res.status(200).json({
+          success: true,
+          message: "All events deleted successfully.",
+        });
+      }
+      catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Unable to delete all events.",
+        });
+      }
+    }
+  );
+
+  /**
+ * @description To Delete By event id
+ * @api /events/api/delete-event
+ * @access Private
+ * @type DETELTE
+ */
+
+  router.delete(
+    "/api/delete-event/:id",
+    userAuth,
+    async (req, res) => {
+      try {
+        let { user } = req;
+        let { id } = req.params;
+        let event = await Event.findById(id);
+        if (!event) {
+          return res.status(404).json({
+            success: false,
+            message: "Event not found.",
+          });
+        }
+        if (event.organizer.toString() !== user._id.toString()) {
+          return res.status(401).json({
+            success: false,
+            message: "event doesn't belong to you.",
+          });
+        }
+        await Event.findByIdAndDelete(id);
+        return res.status(200).json({
+          success: true,
+          message: "Event deleted successfully.",
+        });
+      }
+      catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Unable to delete event.",
+        });
+      }
+    }
+  );
+  
+
+
+/**
  * @description To Get all events by All the users
  * @api /events/api/get-event
  * @access public
@@ -257,7 +359,7 @@ router.put(
 
 router.get("/api/get-event", async (req, res) => {
   try {
-    let events = await Event.find();
+    let events = await Event.find().populate("category").populate("organizer").populate("attendees");
     return res.status(200).json({
       events,
       success: true,
