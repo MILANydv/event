@@ -123,6 +123,12 @@ router.post(
           message: "Invalid Credentials.",
         });
       }
+      if(user.verified != true) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized access. Please verify your account.",
+        });
+      }
       if (!(await user.comparePassword(password))) {
         return res.status(401).json({
           success: false,

@@ -17,29 +17,30 @@ router.post(
   "/api/create-profile",
   userAuth,
   uploader.single("avatar"),
-  async (req, res) => {
+   (req, res) => {
     try {
       // check if user has a profile
-      const userprofile = await Profile.findOne({
-        user: req.user.id,
-      });
-      if (userprofile) {
-        return res.status(400).json({
-          status: "error",
+   Profile.findOne(
+        req.user.id,
+      ).then((userProfile)=>{
+        if(userProfile != null){
+          return res.status(400).json({
+          success: false,
           message: "You already have a profile",
         });
-      }
-      // create new profile
-      if (req.file == undefined || req.file == null) {
+
+      }else{
+        if (req.file == undefined || req.file == null) {
         return res.status(400).json({
           status: "error",
           message: "No file selected",
         });
       }
-      let { file } = req;
       let { body } = req;
+      let { file } = req;
+
       let filename = DOMAIN + "uploads/" + file.filename;
-      let profile = await Profile.create({
+      Profile.create({
         account: req.user._id,
         avatar: filename,
         facebook: body.facebook,
@@ -47,10 +48,15 @@ router.post(
         github: body.github,
       });
       return res.status(200).json({
-        profile,
+      
         success: true,
         message: "Profile Created Successfully.",
       });
+      }
+    });
+
+      
+      
     } catch (err) {
       return res.status(400).json({
         success: false,
@@ -102,13 +108,13 @@ router.put(
   async (req, res) => {
     try {
       let { body } = req;
-      let { file } = req;
-      let filename = DOMAIN + "uploads/" + file.filename;
+      // let { file } = req;
+      // let filename = DOMAIN + "uploads/" + file.filename;
       let profile = await Profile.findOneAndUpdate(
         { account: req.user._id },
         {
           ...body,
-          avatar: filename,
+          // avatar: filename,
         },
         { new: true }
       );
