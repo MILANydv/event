@@ -1,6 +1,6 @@
-const { Category } = require("../models");
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+import { Category } from "../models/";
+const router = Router();
 
 /**
  * @description To Get event category
