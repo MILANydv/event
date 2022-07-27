@@ -297,31 +297,31 @@ router.post("/api/reset-password-now", async (req, res) => {
  * @type PUT
  */
 
-router.put("/api/change-password", userAuth,function (req, res) {
-  const userID = req.user._id;
-  const oldPassword = req.body.oldPassword;
-  const newPassword = req.body.newPassword;
-  User.findOne({ _id: userID }).then(function (data) {
-    bcrypt.compare(oldPassword, data.password, function (err, result) {
-      if (result) {
-        bcrypt.hash(newPassword, 12, function (err, hash12) {
-          var password = { newPassword: hash12 };
-          User.updateOne({ _id: userID }, { password: hash12 })
-            .then(function (result) {
-              if (result) {
-                res
-                  .status(201)
-                  .json({ success: true, message: "Password changed!" });
-              }
-            })
-            .catch(function (e) {
-              res.status(403).json({ message: e });
-            });
-        });
-      } else {
-        res.status(401).json({ message: "Invalid Password!" });
-      }
-    });
-  });
-});
+// router.put("/api/change-password", userAuth,function (req, res) {
+//   const userID = req.user._id;
+//   const oldPassword = req.body.oldPassword;
+//   const newPassword = req.body.newPassword;
+//   User.findOne({ _id: userID }).then(function (data) {
+//     bcrypt.compare(oldPassword, data.password, function (err, result) {
+//       if (result) {
+//         bcrypt.hash(newPassword, 12, function (err, hash12) {
+//           var password = { newPassword: hash12 };
+//           User.updateOne({ _id: userID }, { password: hash12 })
+//             .then(function (result) {
+//               if (result) {
+//                 res
+//                   .status(201)
+//                   .json({ success: true, message: "Password changed!" });
+//               }
+//             })
+//             .catch(function (e) {
+//               res.status(403).json({ message: e });
+//             });
+//         });
+//       } else {
+//         res.status(401).json({ message: "Invalid Password!" });
+//       }
+//     });
+//   });
+// });
 export default router;
