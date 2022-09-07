@@ -111,13 +111,30 @@ router.put(
 
   async (req, res) => {
     try {
-      let event = await Event.findById(req.body._id);
-      if (event == null) {
-        return res.status(400).json({
-          success: false,
-          message: "Event not found.",
-        });
-      }
+      let event = await Event.findById(req.body.eventId);
+
+        if (event == null) {
+          return res.status(404).json({
+            success: false,
+            message: "Event not found.",
+          });
+        }
+
+        if (event.organizer == req.user._id) {
+          return res.status(401).json({
+            success: false,
+            message: "You cannot attend your own event.",
+          });
+        }
+
+        if (event.attendees.includes(req.user._id)) {
+          return res.status(400).json({
+            success: false,
+            message: "You have already attended this event.",
+          });
+        }
+
+
       event.attendees.push(req.user._id);
       let savedEvent = await event.save();
       return res.status(200).json({
@@ -220,14 +237,14 @@ router.get(
  * @type PUT
  */
 router.put(
-  "/api/update-event/:id",
+  "/api/update-event/",
   userAuth,
   uploader.single("eventImage"),
   validator,
   eventValidations,
   async (req, res) => {
     try {
-      let { id } = req.params;
+      let { id } = req.body;
       let { user, body } = req;
       //  let { file } = req;
 
@@ -359,7 +376,7 @@ router.put(
 
 router.get("/api/get-event", async (req, res) => {
   try {
-    let events = await Event.find().populate("category").populate("organizer").populate("attendees");
+    let events = await Event.find();
     return res.status(200).json({
       events,
       success: true,
@@ -448,9 +465,9 @@ router.get("/api/search-event/", async (req, res) => {
  * @access private
  * @type PUT
  */
-router.put("/api/like-event/:id", userAuth, async (req, res) => {
+router.put("/api/like-event/", userAuth, async (req, res) => {
   try {
-    let { id } = req.params;
+    let { id } = req.body;
     let event = await Event.findById(id);
     if (!event) {
       return res.status(404).json({
@@ -488,6 +505,38 @@ router.put("/api/like-event/:id", userAuth, async (req, res) => {
     });
   }
 });
+/**
+ * @description To Get Like Count of Event
+ * @api /events/api/like-count
+ * @access private
+ * @type GET
+ */
+router.get("/api/like-count/", userAuth, async (req, res) => {
+  try {
+    let { id } = req.body;
+    let event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "event not found.",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Likes fetched successfully.",
+      likes: event.likes.count,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch likes.",
+    });
+  }
+}
+);
+
+
 
 /**
  * @description To comment a event by authenticated user

@@ -4,6 +4,7 @@ import { join } from "path";
 import { DOMAIN } from "../constants";
 import sendMail from "../functions/email-sender";
 import { userAuth } from "../middlewares/auth-guard";
+import { uploadEventImage as uploader } from "../middlewares/uploader";
 import Validator from "../middlewares/validator-middleware";
 import { User } from "../models";
 import {
@@ -23,6 +24,7 @@ const router = Router();
 router.post(
   "/api/register",
   RegisterValidations,
+  uploader.single("image"),
   Validator,
   async (req, res) => {
     try {
@@ -175,6 +177,7 @@ router.put(
   "/api/reset-password",
   ResetPassword,
   Validator,
+  uploader.single("eventImage"),
   async (req, res) => {
     try {
       let { email } = req.body;
